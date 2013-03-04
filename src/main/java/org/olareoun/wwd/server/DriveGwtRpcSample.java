@@ -39,7 +39,7 @@ public class DriveGwtRpcSample extends RemoteServiceServlet implements DriveServ
     try {
       Drive client = DriveUtils.loadDriveClient();
       com.google.api.services.drive.Drive.Files.List listRequest = client.files().list();
-      listRequest.setFields("items(id,summary)");
+//      listRequest.setFields("items(id,summary)");
       FileList list = listRequest.execute();
       ArrayList<GwtDrive> result = new ArrayList<GwtDrive>();
       if (list.getItems() != null) {

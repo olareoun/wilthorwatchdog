@@ -27,7 +27,7 @@ import java.util.List;
  * 
  * @author Yaniv Inbar
  */
-@RemoteServiceRelativePath("calendarService")
+@RemoteServiceRelativePath("driveService")
 public interface DriveService extends RemoteService {
 
   List<GwtDrive> getDrives() throws IOException;
