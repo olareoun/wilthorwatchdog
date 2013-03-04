@@ -38,7 +38,6 @@ public class DriveGwtSample implements EntryPoint {
       @Override
       public void onSuccess(List<GwtDrive> result) {
         drives = result;
-        driveFrame.addButton.setEnabled(true);
         refreshTable();
       }
     });
@@ -51,7 +50,6 @@ public class DriveGwtSample implements EntryPoint {
     drivesTable.getCellFormatter().addStyleName(0, 1, "methodsHeaderRow");
     for (int i = 0; i < drives.size(); i++) {
       GwtDrive drive = drives.get(i);
-      drivesTable.setWidget(i + 1, 0, new DriveButtons(this, drive, i));
       drivesTable.setText(i + 1, 1, drive.title);
     }
   }
