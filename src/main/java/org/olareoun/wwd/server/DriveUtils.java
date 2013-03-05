@@ -19,16 +19,23 @@ import com.google.api.client.extensions.appengine.auth.oauth2.AppEngineCredentia
 import com.google.api.client.extensions.appengine.http.UrlFetchTransport;
 import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
 import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
+import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
 import com.google.api.client.http.GenericUrl;
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson.JacksonFactory;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.DriveScopes;
+import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserServiceFactory;
 import com.google.common.base.Preconditions;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.security.GeneralSecurityException;
 import java.util.Collections;
 
 import javax.servlet.http.HttpServletRequest;
@@ -39,6 +46,17 @@ import javax.servlet.http.HttpServletRequest;
  * @author Yaniv Inbar
  */
 class DriveUtils {
+
+  /**
+   * 
+   */
+  private static final String P12_PATH = "/8463127e5b4fb444c1e47389f1b6ce1b57d0f83b-privatekey.p12";
+
+  /**
+   * 
+   */
+  private static final String CLIENT_SERVICE_EMAIL =
+      "121078344609-ubnbhq4fthfvq2t6fls53lnnt847cl5n@developer.gserviceaccount.com";
 
   /** Global instance of the HTTP transport. */
   static final HttpTransport HTTP_TRANSPORT = new UrlFetchTransport();
@@ -55,7 +73,7 @@ class DriveUtils {
       Preconditions.checkArgument(!clientSecrets.getDetails().getClientId().startsWith("Enter ")
           && !clientSecrets.getDetails().getClientSecret().startsWith("Enter "),
           "Download client_secrets.json file from https://code.google.com/apis/console/?api=calendar "
-          + "into wilthorwatchdog/src/main/resources/client_secrets.json");
+              + "into wilthorwatchdog/src/main/resources/client_secrets.json");
     }
     return clientSecrets;
   }
@@ -69,13 +87,55 @@ class DriveUtils {
   static GoogleAuthorizationCodeFlow newFlow() throws IOException {
     return new GoogleAuthorizationCodeFlow.Builder(HTTP_TRANSPORT, JSON_FACTORY,
         getClientCredential(), Collections.singleton(DriveScopes.DRIVE)).setCredentialStore(
-        new AppEngineCredentialStore()).setAccessType("offline").build();
+            new AppEngineCredentialStore()).setAccessType("offline").build();
   }
 
-  static Drive loadDriveClient() throws IOException {
-    String userId = UserServiceFactory.getUserService().getCurrentUser().getUserId();
+  static Drive loadDriveClient(String userEmail) throws IOException {
+    User currentUser = UserServiceFactory.getUserService().getCurrentUser();
+    try {
+      File p12File = getKeyFile();
+      GoogleCredential credential = new GoogleCredential.Builder()
+      .setTransport(HTTP_TRANSPORT)
+      .setJsonFactory(JSON_FACTORY)
+      .setServiceAccountId(CLIENT_SERVICE_EMAIL)
+      .setServiceAccountScopes(DriveScopes.DRIVE)
+      .setServiceAccountUser(userEmail)
+      .setServiceAccountPrivateKeyFromP12File(
+          p12File)
+          .build();
+      return new Drive.Builder(HTTP_TRANSPORT, JSON_FACTORY, null)
+      .setHttpRequestInitializer(credential).build();
+    } catch (GeneralSecurityException exception) {
+      return handleException(currentUser, exception);
+    } catch (URISyntaxException exception) {
+      return handleException(currentUser, exception);
+    }
+  }
+
+  /**
+   * @param currentUser
+   * @param exception
+   * @return
+   * @throws IOException
+   */
+  private static Drive handleException(User currentUser, Exception exception)
+      throws IOException {
+    exception.printStackTrace();
+    String userId = currentUser.getUserId();
     Credential credential = newFlow().loadCredential(userId);
     return new Drive.Builder(HTTP_TRANSPORT, JSON_FACTORY, credential).build();
+  }
+
+  /**
+   * @return
+   * @throws URISyntaxException
+   * @throws FileNotFoundException
+   * @throws IOException
+   */
+  private static File getKeyFile() throws URISyntaxException, FileNotFoundException, IOException {
+    URL systemResource = DriveUtils.class.getResource(P12_PATH);
+    File p12File = new File(systemResource.toURI());
+    return p12File;
   }
 
   /**

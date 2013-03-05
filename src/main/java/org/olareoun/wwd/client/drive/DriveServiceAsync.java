@@ -27,6 +27,6 @@ import java.util.List;
  */
 public interface DriveServiceAsync {
 
-  void getDrives(AsyncCallback<List<GwtDrive>> callback);
+  void getDrives(String userEmail, AsyncCallback<List<GwtDrive>> callback);
 
 }

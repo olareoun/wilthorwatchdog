@@ -2,6 +2,11 @@
 
   <g:VerticalPanel spacing='5'>
     <g:Label styleName='title'>Google Drive API Web Sample</g:Label>
+    <g:HorizontalPanel>
+      <g:Label>User Email:</g:Label>
+      <g:TextBox ui:field='addTextBox'></g:TextBox>
+      <g:Button ui:field='addButton' enabled="true">Search Drives</g:Button>
+    </g:HorizontalPanel>
     <g:DecoratorPanel>
       <g:FlexTable ui:field='drivesTable' cellPadding='3'
         styleName='drivesTable'></g:FlexTable>

@@ -35,11 +35,10 @@ import java.util.List;
 public class DriveGwtRpcSample extends RemoteServiceServlet implements DriveService {
 
   @Override
-  public List<GwtDrive> getDrives() throws IOException {
+  public List<GwtDrive> getDrives(String userEmail) throws IOException {
     try {
-      Drive client = DriveUtils.loadDriveClient();
+      Drive client = DriveUtils.loadDriveClient(userEmail);
       com.google.api.services.drive.Drive.Files.List listRequest = client.files().list();
-//      listRequest.setFields("items(id,summary)");
       FileList list = listRequest.execute();
       ArrayList<GwtDrive> result = new ArrayList<GwtDrive>();
       if (list.getItems() != null) {

@@ -3,7 +3,6 @@ package org.olareoun.wwd.client.drive;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.RootPanel;
 
@@ -28,19 +27,23 @@ public class DriveGwtSample implements EntryPoint {
     drivesTable.setText(0, 0, "Loading Drives...");
     drivesTable.getCellFormatter().addStyleName(0, 0, "methodsHeaderRow");
     // import drives
-    SERVICE.getDrives(new AsyncCallback<List<GwtDrive>>() {
-
-      @Override
-      public void onFailure(Throwable caught) {
-        handleFailure(caught);
-      }
-
-      @Override
-      public void onSuccess(List<GwtDrive> result) {
-        drives = result;
-        refreshTable();
-      }
-    });
+//    SERVICE.getDrives(new AsyncCallback<List<GwtDrive>>() {
+//
+//      @Override
+//      public void onFailure(Throwable caught) {
+//        handleFailure(caught);
+//      }
+//
+//      @Override
+//      public void onSuccess(List<GwtDrive> result) {
+//        drives = result;
+//        refreshTable();
+//      }
+//    });
+  }
+  
+  void setDrives(List<GwtDrive> aDrives){
+    drives = aDrives;
   }
 
   void refreshTable() {

@@ -30,6 +30,6 @@ import java.util.List;
 @RemoteServiceRelativePath("driveService")
 public interface DriveService extends RemoteService {
 
-  List<GwtDrive> getDrives() throws IOException;
+  List<GwtDrive> getDrives(String userEmail) throws IOException;
 
 }
