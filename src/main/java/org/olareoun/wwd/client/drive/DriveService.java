@@ -17,6 +17,7 @@ package org.olareoun.wwd.client.drive;
 import com.google.gwt.user.client.rpc.RemoteService;
 import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 
+import org.olareoun.wwd.shared.DriveAbout;
 import org.olareoun.wwd.shared.GwtDrive;
 
 import java.io.IOException;
@@ -31,5 +32,6 @@ import java.util.List;
 public interface DriveService extends RemoteService {
 
   List<GwtDrive> getDrives(String userEmail) throws IOException;
+  DriveAbout getAbout() throws IOException;
 
 }

@@ -7,6 +7,7 @@ import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.RootPanel;
 
 import org.olareoun.wwd.shared.AuthenticationException;
+import org.olareoun.wwd.shared.DriveAbout;
 import org.olareoun.wwd.shared.GwtDrive;
 
 import java.util.List;
@@ -15,6 +16,9 @@ public class DriveGwtSample implements EntryPoint {
 
   DrivesFrame driveFrame;
   List<GwtDrive> drives;
+
+  AboutFrame aboutFrame;
+  DriveAbout about;
 
   static final DriveServiceAsync SERVICE = GWT.create(DriveService.class);
 
@@ -26,20 +30,9 @@ public class DriveGwtSample implements EntryPoint {
     FlexTable drivesTable = driveFrame.drivesTable;
     drivesTable.setText(0, 0, "Loading Drives...");
     drivesTable.getCellFormatter().addStyleName(0, 0, "methodsHeaderRow");
-    // import drives
-//    SERVICE.getDrives(new AsyncCallback<List<GwtDrive>>() {
-//
-//      @Override
-//      public void onFailure(Throwable caught) {
-//        handleFailure(caught);
-//      }
-//
-//      @Override
-//      public void onSuccess(List<GwtDrive> result) {
-//        drives = result;
-//        refreshTable();
-//      }
-//    });
+
+    aboutFrame = new AboutFrame(this);
+    RootPanel.get("main").add(aboutFrame);
   }
   
   void setDrives(List<GwtDrive> aDrives){
@@ -65,4 +58,22 @@ public class DriveGwtSample implements EntryPoint {
       Window.alert("ERROR: " + caught.getMessage());
     }
   }
+
+  /**
+   * @param result
+   */
+  public void setAbout(DriveAbout result) {
+    this.about = result;
+  }
+
+  /**
+   * 
+   */
+  public void refreshAbout() {
+    aboutFrame.nameField.setValue(about.name);
+    aboutFrame.nameField.setReadOnly(true);
+    aboutFrame.rootFolderIdField.setValue(about.rootFolderId);
+    aboutFrame.rootFolderIdField.setReadOnly(true);
+  }
+
 }

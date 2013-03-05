@@ -90,8 +90,31 @@ class DriveUtils {
             new AppEngineCredentialStore()).setAccessType("offline").build();
   }
 
+  /**
+   * @return
+   * @throws IOException 
+   * @throws FileNotFoundException 
+   */
+  static Drive loadDriveClient() throws IOException {
+    User currentUser = UserServiceFactory.getUserService().getCurrentUser();
+    String userEmail = currentUser.getEmail();
+    return loadDriveClientForEmail(currentUser, userEmail);
+  }
+
   static Drive loadDriveClient(String userEmail) throws IOException {
     User currentUser = UserServiceFactory.getUserService().getCurrentUser();
+    return loadDriveClientForEmail(currentUser, userEmail);
+  }
+
+  /**
+   * @param currentUser
+   * @param userEmail
+   * @return
+   * @throws FileNotFoundException
+   * @throws IOException
+   */
+  private static Drive loadDriveClientForEmail(User currentUser, String userEmail)
+      throws IOException {
     try {
       File p12File = getKeyFile();
       GoogleCredential credential = new GoogleCredential.Builder()
@@ -111,7 +134,7 @@ class DriveUtils {
       return handleException(currentUser, exception);
     }
   }
-
+  
   /**
    * @param currentUser
    * @param exception
@@ -151,4 +174,5 @@ class DriveUtils {
 
   private DriveUtils() {
   }
+
 }

@@ -16,17 +16,15 @@ package org.olareoun.wwd.client.drive;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
+import org.olareoun.wwd.shared.DriveAbout;
 import org.olareoun.wwd.shared.GwtDrive;
 
 import java.util.List;
 
-/**
- * Async interface for GWT RPC service for calendars.
- * 
- * @author Yaniv Inbar
- */
 public interface DriveServiceAsync {
 
   void getDrives(String userEmail, AsyncCallback<List<GwtDrive>> callback);
+
+  void getAbout(AsyncCallback<DriveAbout> callback);
 
 }

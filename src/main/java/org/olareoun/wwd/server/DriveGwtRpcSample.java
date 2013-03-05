@@ -15,11 +15,13 @@
 package org.olareoun.wwd.server;
 
 import com.google.api.services.drive.Drive;
+import com.google.api.services.drive.model.About;
 import com.google.api.services.drive.model.File;
 import com.google.api.services.drive.model.FileList;
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
 import org.olareoun.wwd.client.drive.DriveService;
+import org.olareoun.wwd.shared.DriveAbout;
 import org.olareoun.wwd.shared.GwtDrive;
 
 import java.io.IOException;
@@ -37,8 +39,8 @@ public class DriveGwtRpcSample extends RemoteServiceServlet implements DriveServ
   @Override
   public List<GwtDrive> getDrives(String userEmail) throws IOException {
     try {
-      Drive client = DriveUtils.loadDriveClient(userEmail);
-      com.google.api.services.drive.Drive.Files.List listRequest = client.files().list();
+      Drive driveService = DriveUtils.loadDriveClient(userEmail);
+      com.google.api.services.drive.Drive.Files.List listRequest = driveService.files().list();
       FileList list = listRequest.execute();
       ArrayList<GwtDrive> result = new ArrayList<GwtDrive>();
       if (list.getItems() != null) {
@@ -50,6 +52,16 @@ public class DriveGwtRpcSample extends RemoteServiceServlet implements DriveServ
     } catch (IOException e) {
       throw Utils.wrappedIOException(e);
     }
+  }
+
+  /* (non-Javadoc)
+   * @see org.olareoun.wwd.client.drive.DriveService#getAbout()
+   */
+  @Override
+  public DriveAbout getAbout() throws IOException {
+    Drive driveService = DriveUtils.loadDriveClient();
+    About about = driveService.about().get().execute();
+    return new DriveAbout(about.getName(), about.getRootFolderId());
   }
 
 }
