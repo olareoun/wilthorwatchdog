@@ -39,7 +39,8 @@ public class DriveGwtRpcSample extends RemoteServiceServlet implements DriveServ
   @Override
   public List<GwtDrive> getDrives(String userEmail) throws IOException {
     try {
-      Drive driveService = DriveUtils.loadDriveClient(userEmail);
+//      Drive driveService = DriveUtils.loadDriveClient(userEmail);
+      Drive driveService = UserDriveUtils.loadDriveClient();
       com.google.api.services.drive.Drive.Files.List listRequest = driveService.files().list();
       FileList list = listRequest.execute();
       ArrayList<GwtDrive> result = new ArrayList<GwtDrive>();

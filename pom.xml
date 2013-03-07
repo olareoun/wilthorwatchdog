@@ -34,6 +34,11 @@
 
 	<repositories>
 		<repository>
+			<id>burtsev-net-maven</id>
+			<name>Burtsev.Net Maven Repository</name>
+			<url>http://maven.burtsev.net</url>
+		</repository>
+		<repository>
 			<id>DataNucleus_2</id>
 			<url>http://www.datanucleus.org/downloads/maven2/</url>
 			<name>DataNucleus</name>
@@ -270,6 +275,33 @@
 	</build>
 	<dependencies>
 		<dependency>
+			<groupId>com.google.gdata.gdata-java-client</groupId>
+			<artifactId>gdata-appsforyourdomain-1.0</artifactId>
+			<version>1.46.0</version>
+			<exclusions>
+				<exclusion>
+					<groupId>com.google.gdata.gdata-java-client</groupId>
+					<artifactId>gdata-core-1.0</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>com.google.gdata.gdata-java-client</groupId>
+			<artifactId>gdata-core-1.0</artifactId>
+			<version>1.46.0</version>
+			<exclusions>
+				<exclusion>
+					<groupId>com.google.collections</groupId>
+					<artifactId>google-collections</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>com.google.apis</groupId>
+			<artifactId>google-api-services-oauth2</artifactId>
+			<version>v2-rev29-1.13.2-beta</version>
+		</dependency>
+		<dependency>
 			<groupId>com.google.apis</groupId>
 			<artifactId>google-api-services-drive</artifactId>
 			<version>v2-rev55-1.13.2-beta</version>
@@ -309,6 +341,12 @@
 			<groupId>javax.jdo</groupId>
 			<artifactId>jdo2-api</artifactId>
 			<version>2.3-eb</version>
+		</dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.4</version>
+			<scope>test</scope>
 		</dependency>
 	</dependencies>
 </project>

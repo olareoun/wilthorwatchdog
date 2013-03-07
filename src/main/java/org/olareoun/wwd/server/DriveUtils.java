@@ -15,20 +15,13 @@
 package org.olareoun.wwd.server;
 
 import com.google.api.client.auth.oauth2.Credential;
-import com.google.api.client.extensions.appengine.auth.oauth2.AppEngineCredentialStore;
-import com.google.api.client.extensions.appengine.http.UrlFetchTransport;
 import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
-import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
 import com.google.api.client.http.GenericUrl;
-import com.google.api.client.http.HttpTransport;
-import com.google.api.client.json.JsonFactory;
-import com.google.api.client.json.jackson.JacksonFactory;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.DriveScopes;
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserServiceFactory;
-import com.google.common.base.Preconditions;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -58,36 +51,14 @@ class DriveUtils {
   private static final String CLIENT_SERVICE_EMAIL =
       "121078344609-ubnbhq4fthfvq2t6fls53lnnt847cl5n@developer.gserviceaccount.com";
 
-  /** Global instance of the HTTP transport. */
-  static final HttpTransport HTTP_TRANSPORT = new UrlFetchTransport();
-
-  /** Global instance of the JSON factory. */
-  static final JsonFactory JSON_FACTORY = new JacksonFactory();
-
-  private static GoogleClientSecrets clientSecrets = null;
-
-  static GoogleClientSecrets getClientCredential() throws IOException {
-    if (clientSecrets == null) {
-      clientSecrets = GoogleClientSecrets.load(
-          JSON_FACTORY, Utils.class.getResourceAsStream("/client_secrets.json"));
-      Preconditions.checkArgument(!clientSecrets.getDetails().getClientId().startsWith("Enter ")
-          && !clientSecrets.getDetails().getClientSecret().startsWith("Enter "),
-          "Download client_secrets.json file from https://code.google.com/apis/console/?api=calendar "
-              + "into wilthorwatchdog/src/main/resources/client_secrets.json");
-    }
-    return clientSecrets;
-  }
-
   static String getRedirectUri(HttpServletRequest req) {
     GenericUrl url = new GenericUrl(req.getRequestURL().toString());
     url.setRawPath("/oauth2callback");
     return url.build();
   }
 
-  static GoogleAuthorizationCodeFlow newFlow() throws IOException {
-    return new GoogleAuthorizationCodeFlow.Builder(HTTP_TRANSPORT, JSON_FACTORY,
-        getClientCredential(), Collections.singleton(DriveScopes.DRIVE)).setCredentialStore(
-            new AppEngineCredentialStore()).setAccessType("offline").build();
+  static GoogleAuthorizationCodeFlow getFlow() throws IOException {
+    return FlowUtils.getFlow(Collections.singleton(DriveScopes.DRIVE));
   }
 
   /**
@@ -118,15 +89,15 @@ class DriveUtils {
     try {
       File p12File = getKeyFile();
       GoogleCredential credential = new GoogleCredential.Builder()
-      .setTransport(HTTP_TRANSPORT)
-      .setJsonFactory(JSON_FACTORY)
+      .setTransport(FlowUtils.HTTP_TRANSPORT)
+      .setJsonFactory(FlowUtils.JSON_FACTORY)
       .setServiceAccountId(CLIENT_SERVICE_EMAIL)
       .setServiceAccountScopes(DriveScopes.DRIVE)
       .setServiceAccountUser(userEmail)
       .setServiceAccountPrivateKeyFromP12File(
           p12File)
           .build();
-      return new Drive.Builder(HTTP_TRANSPORT, JSON_FACTORY, null)
+      return new Drive.Builder(FlowUtils.HTTP_TRANSPORT, FlowUtils.JSON_FACTORY, null)
       .setHttpRequestInitializer(credential).build();
     } catch (GeneralSecurityException exception) {
       return handleException(currentUser, exception);
@@ -145,8 +116,8 @@ class DriveUtils {
       throws IOException {
     exception.printStackTrace();
     String userId = currentUser.getUserId();
-    Credential credential = newFlow().loadCredential(userId);
-    return new Drive.Builder(HTTP_TRANSPORT, JSON_FACTORY, credential).build();
+    Credential credential = getFlow().loadCredential(userId);
+    return new Drive.Builder(FlowUtils.HTTP_TRANSPORT, FlowUtils.JSON_FACTORY, credential).build();
   }
 
   /**

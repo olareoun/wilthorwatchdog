@@ -66,11 +66,11 @@ public class DriveAppEngineSample extends AbstractAppEngineAuthorizationCodeServ
 
   @Override
   protected String getRedirectUri(HttpServletRequest req) throws ServletException, IOException {
-    return DriveUtils.getRedirectUri(req);
+    return UserDriveUtils.getRedirectUri(req);
   }
 
   @Override
   protected AuthorizationCodeFlow initializeFlow() throws IOException {
-    return DriveUtils.newFlow();
+    return UserDriveUtils.getFlow();
   }
 }
