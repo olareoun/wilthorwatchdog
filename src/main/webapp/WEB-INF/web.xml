@@ -21,28 +21,13 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
   </servlet>
 
   <servlet>
-    <servlet-name>calendarServiceServlet</servlet-name>
-    <servlet-class>org.olareoun.wwd.server.CalendarGwtRpcSample</servlet-class>
-  </servlet>
-
-  <servlet>
     <servlet-name>drivesample</servlet-name>
     <servlet-class>org.olareoun.wwd.server.DriveAppEngineSample</servlet-class>
-  </servlet>
-
-  <servlet>
-    <servlet-name>calendarsample</servlet-name>
-    <servlet-class>org.olareoun.wwd.server.CalendarAppEngineSample</servlet-class>
   </servlet>
 
   <servlet-mapping>
     <servlet-name>driveServiceServlet</servlet-name>
     <url-pattern>/calendar/driveService</url-pattern>
-  </servlet-mapping>
-
-  <servlet-mapping>
-    <servlet-name>calendarServiceServlet</servlet-name>
-    <url-pattern>/calendar/calendarService</url-pattern>
   </servlet-mapping>
 
   <servlet-mapping>
