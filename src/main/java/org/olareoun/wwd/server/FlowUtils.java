@@ -48,7 +48,7 @@ public class FlowUtils {
   static GoogleClientSecrets getClientSecrets() throws IOException {
     if (clientSecrets == null) {
       clientSecrets = GoogleClientSecrets.load(
-          JSON_FACTORY, Utils.class.getResourceAsStream("/client_secrets.json"));
+          JSON_FACTORY, FlowUtils.class.getResourceAsStream("/client_secrets.json"));
       Preconditions.checkArgument(!clientSecrets.getDetails().getClientId().startsWith("Enter ")
           && !clientSecrets.getDetails().getClientSecret().startsWith("Enter "),
           "Download client_secrets.json file from https://code.google.com/apis/console/?api=calendar "

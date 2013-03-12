@@ -9,7 +9,6 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlexTable;
-import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
 import org.olareoun.wwd.shared.GwtDrive;
@@ -23,39 +22,80 @@ public class DrivesFrame extends Composite {
   private static MyUiBinder uiBinder = GWT.create(MyUiBinder.class);
 
   @UiField
-  TextBox addTextBox;
-
-  @UiField
   Button addButton;
 
   @UiField
   FlexTable drivesTable;
 
-  final DriveGwtSample main;
+  @UiField
+  Button changeButton;
 
-  public DrivesFrame(DriveGwtSample main) {
-    this.main = main;
+  final MainScreen mainScreen;
+
+  private List<GwtDrive> drives;
+  
+  public DrivesFrame(MainScreen main) {
+    this.mainScreen = main;
     initWidget(uiBinder.createAndBindUi(this));
   }
 
   @UiHandler("addButton")
   void handleAdd(ClickEvent e) {
-    String userEmail = addTextBox.getText();
-    if (userEmail != null) {
-      addTextBox.setText("");
-      DriveGwtSample.SERVICE.getDrives(userEmail, new AsyncCallback<List<GwtDrive>>() {
+    MainScreen.SERVICE.getDocuments(mainScreen.getUsers(), new AsyncCallback<List<GwtDrive>>() {
 
-        @Override
-        public void onFailure(Throwable caught) {
-          DriveGwtSample.handleFailure(caught);
-        }
+      @Override
+      public void onFailure(Throwable caught) {
+        MainScreen.handleFailure(caught);
+      }
 
-        @Override
-        public void onSuccess(List<GwtDrive> result) {
-          main.setDrives(result);
-          main.refreshTable();
-        }
-      });
+      @Override
+      public void onSuccess(List<GwtDrive> aDrives) {
+        setDrives(aDrives);
+        refreshTable();
+      }
+    });
+  }
+
+  @UiHandler("changeButton")
+  void handleChange(ClickEvent e) {
+    MainScreen.SERVICE.changePermissions(this.drives, new AsyncCallback<List<GwtDrive>>() {
+
+      @Override
+      public void onFailure(Throwable caught) {
+//        MainScreen.handleFailure(caught);
+      }
+
+      @Override
+      public void onSuccess(List<GwtDrive> aDrives) {
+//        setDrives(aDrives);
+//        refreshTable();
+      }
+    });
+  }
+
+  void refreshTable() {
+    drivesTable.removeAllRows();
+    drivesTable.setText(0, 1, "Drive Title");
+    drivesTable.setText(0, 2, "Drive Owners");
+    drivesTable.getCellFormatter().addStyleName(0, 1, "methodsHeaderRow");
+    drivesTable.getCellFormatter().addStyleName(0, 2, "methodsHeaderRow");
+    for (int i = 0; i < drives.size(); i++) {
+      GwtDrive drive = drives.get(i);
+      drivesTable.setText(i + 1, 1, drive.title);
+      drivesTable.setText(i + 1, 2, drive.ownerNamesString());
     }
   }
+
+  public void hide(){
+    this.setVisible(false);
+  }
+
+  public void show(){
+    this.setVisible(true);
+  }
+
+  void setDrives(List<GwtDrive> aDrives){
+    this.drives = aDrives;
+  }
+
 }

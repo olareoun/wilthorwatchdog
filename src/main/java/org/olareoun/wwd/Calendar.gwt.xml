@@ -3,7 +3,7 @@
   <inherits name='com.google.gwt.user.User' />
   <inherits name='com.google.gwt.user.theme.standard.Standard' />
   <entry-point
-    class='org.olareoun.wwd.client.drive.DriveGwtSample' />
+    class='org.olareoun.wwd.client.drive.MainScreen' />
   <source path='client' />
   <source path='shared' />
 </module>

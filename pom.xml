@@ -66,21 +66,6 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 
-	<developers>
-		<developer>
-			<id>yanivi</id>
-			<name>Yaniv Inbar</name>
-			<email>yanivi@google.com</email>
-			<organization>Google</organization>
-			<organizationUrl>http://www.google.com</organizationUrl>
-			<roles>
-				<role>owner</role>
-				<role>developer</role>
-			</roles>
-			<timezone>-5</timezone>
-		</developer>
-	</developers>
-
 	<build>
 		<finalName>war</finalName>
 		<outputDirectory>${webappDirectory}/WEB-INF/classes</outputDirectory>
@@ -197,22 +182,22 @@
 					<webappDirectory>${webappDirectory}</webappDirectory>
 				</configuration>
 			</plugin>
-			<plugin>
-				<artifactId>maven-checkstyle-plugin</artifactId>
-				<version>2.6</version>
-				<configuration>
-					<configLocation>../checkstyle.xml</configLocation>
-					<consoleOutput>true</consoleOutput>
-					<failOnViolation>false</failOnViolation>
-				</configuration>
-				<executions>
-					<execution>
-						<goals>
-							<goal>check</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
+			<!-- <plugin> -->
+			<!-- <artifactId>maven-checkstyle-plugin</artifactId> -->
+			<!-- <version>2.6</version> -->
+			<!-- <configuration> -->
+			<!-- <configLocation>../checkstyle.xml</configLocation> -->
+			<!-- <consoleOutput>true</consoleOutput> -->
+			<!-- <failOnViolation>false</failOnViolation> -->
+			<!-- </configuration> -->
+			<!-- <executions> -->
+			<!-- <execution> -->
+			<!-- <goals> -->
+			<!-- <goal>check</goal> -->
+			<!-- </goals> -->
+			<!-- </execution> -->
+			<!-- </executions> -->
+			<!-- </plugin> -->
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>findbugs-maven-plugin</artifactId>
@@ -277,34 +262,24 @@
 		<dependency>
 			<groupId>com.google.gdata.gdata-java-client</groupId>
 			<artifactId>gdata-appsforyourdomain-1.0</artifactId>
-			<version>1.46.0</version>
+			<version>1.47.0</version>
 			<exclusions>
 				<exclusion>
-					<groupId>com.google.gdata.gdata-java-client</groupId>
-					<artifactId>gdata-core-1.0</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-		<dependency>
-			<groupId>com.google.gdata.gdata-java-client</groupId>
-			<artifactId>gdata-core-1.0</artifactId>
-			<version>1.46.0</version>
-			<exclusions>
-				<exclusion>
-					<groupId>com.google.collections</groupId>
 					<artifactId>google-collections</artifactId>
+					<groupId>com.google.collections</groupId>
 				</exclusion>
 			</exclusions>
-		</dependency>
-		<dependency>
-			<groupId>com.google.collections</groupId>
-			<artifactId>google-collections</artifactId>
-			<version>1.0</version>
 		</dependency>
 		<dependency>
 			<groupId>com.google.apis</groupId>
 			<artifactId>google-api-services-oauth2</artifactId>
 			<version>v2-rev29-1.13.2-beta</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>guava-jdk5</artifactId>
+					<groupId>com.google.guava</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>com.google.apis</groupId>
@@ -317,11 +292,6 @@
 			<version>v3-rev22-1.13.2-beta</version>
 		</dependency>
 		<dependency>
-			<groupId>com.google.guava</groupId>
-			<artifactId>guava</artifactId>
-			<version>14.0</version>
-		</dependency>
-		<dependency>
 			<groupId>net.kindleit</groupId>
 			<artifactId>gae-runtime</artifactId>
 			<version>${gae.version}</version>
@@ -331,6 +301,12 @@
 			<groupId>com.google.api-client</groupId>
 			<artifactId>google-api-client-appengine</artifactId>
 			<version>${google-api-client.version}</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>guava-jdk5</artifactId>
+					<groupId>com.google.guava</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>com.google.gwt</groupId>

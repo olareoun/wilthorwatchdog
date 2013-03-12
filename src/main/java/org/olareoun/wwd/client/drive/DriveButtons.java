@@ -42,11 +42,11 @@ public class DriveButtons extends Composite {
 
   private final int calendarIndex;
 
-  private final DriveGwtSample main;
+  private final MainScreen main;
 
   private final GwtDrive drive;
 
-  public DriveButtons(DriveGwtSample main, GwtDrive drive, int calendarIndex) {
+  public DriveButtons(MainScreen main, GwtDrive drive, int calendarIndex) {
     this.main = main;
     this.drive = drive;
     this.calendarIndex = calendarIndex;

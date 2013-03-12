@@ -16,19 +16,29 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
   </servlet-mapping>
 
   <servlet>
-    <servlet-name>driveServiceServlet</servlet-name>
-    <servlet-class>org.olareoun.wwd.server.DriveGwtRpcSample</servlet-class>
+    <servlet-name>usersServiceServlet</servlet-name>
+    <servlet-class>org.olareoun.wwd.server.users.UsersRemoteService</servlet-class>
   </servlet>
+
+  <servlet-mapping>
+    <servlet-name>usersServiceServlet</servlet-name>
+    <url-pattern>/calendar/usersService</url-pattern>
+  </servlet-mapping>
+
+  <servlet>
+    <servlet-name>driveServiceServlet</servlet-name>
+    <servlet-class>org.olareoun.wwd.server.DriveRemoteService</servlet-class>
+  </servlet>
+  
+  <servlet-mapping>
+    <servlet-name>driveServiceServlet</servlet-name>
+    <url-pattern>/calendar/driveService</url-pattern>
+  </servlet-mapping>
 
   <servlet>
     <servlet-name>drivesample</servlet-name>
     <servlet-class>org.olareoun.wwd.server.DriveAppEngineSample</servlet-class>
   </servlet>
-
-  <servlet-mapping>
-    <servlet-name>driveServiceServlet</servlet-name>
-    <url-pattern>/calendar/driveService</url-pattern>
-  </servlet-mapping>
 
   <servlet-mapping>
     <servlet-name>drivesample</servlet-name>

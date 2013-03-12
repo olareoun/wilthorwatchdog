@@ -14,7 +14,6 @@
 
 package org.olareoun.wwd.server;
 
-import com.google.gdata.client.appsforyourdomain.UserService;
 import com.google.gdata.data.Link;
 import com.google.gdata.data.appsforyourdomain.AppsForYourDomainException;
 import com.google.gdata.data.appsforyourdomain.provisioning.UserFeed;
@@ -34,14 +33,14 @@ public class UserUtils {
   private static final String SERVICE_VERSION = "2.0";
   private static final String APPS_FEEDS_URL_BASE =
       "https://apps-apis.google.com/a/feeds/";
-  private UserService service;
+  private DomainUserService service;
   private String domain;
   private String domainUrlBase;
 
   public UserUtils(String admin, String password, String domain) throws AuthenticationException{
     this.domain = domain;
     this.domainUrlBase = APPS_FEEDS_URL_BASE + this.domain + "/";
-    service = new UserService("wilthorwatchdog");
+    service = new DomainUserService("wilthorwatchdog");
     service.setUserCredentials(admin, password);
   }
 

@@ -18,7 +18,7 @@ public class UserUtilsTest {
 
   @Test
   public void test() throws AppsForYourDomainException, ServiceException, IOException {
-    UserUtils userUtils = new UserUtils("administrador@ideasbrillantes.org", "c0st0y4C=ST=Y$", "ideasbrillantes.org");
+    UserUtils userUtils = new UserUtils("moore@ideasbrillantes.org", "olareoun", "ideasbrillantes.org");
     UserFeed users = userUtils.retrieveAllUsers();
     for (UserEntry entry: users.getEntries()) {
       System.out.println(entry.getId());

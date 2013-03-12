@@ -56,10 +56,7 @@ public class DriveAppEngineSample extends AbstractAppEngineAuthorizationCodeServ
     UserService userService = UserServiceFactory.getUserService();
     writer.println("<div class=\"header\"><b>" + request.getUserPrincipal().getName() + "</b> | "
         + "<a href=\"" + userService.createLogoutURL(request.getRequestURL().toString())
-        + "\">Log out</a> | "
-        + "<a href=\"http://code.google.com/p/google-api-java-client/source/browse"
-        + "/calendar-appengine-sample?repo=samples\">See source code for "
-        + "this sample</a></div>");
+        + "\">Log out</a> | </div>");
     writer.println("<div id=\"main\"/>");
     writer.println("</body></html>");
   }

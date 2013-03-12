@@ -15,7 +15,7 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
-class UserDriveUtils {
+public class UserDriveUtils {
 
   private static final List<String> SCOPES = Arrays.asList(
       "https://www.googleapis.com/auth/drive.file",
@@ -24,7 +24,9 @@ class UserDriveUtils {
 
   private static GoogleAuthorizationCodeFlow flow = null;
 
-  static String getRedirectUri(HttpServletRequest req) {
+  private static Userinfo userInfo;
+
+  public static String getRedirectUri(HttpServletRequest req) {
     GenericUrl url = new GenericUrl(req.getRequestURL().toString());
     url.setRawPath("/oauth2callback");
     return url.build();
@@ -40,7 +42,6 @@ class UserDriveUtils {
   static Drive loadDriveClient() throws IOException {
     User currentUser = UserServiceFactory.getUserService().getCurrentUser();
     Credential credential = FlowUtils.getFlow(SCOPES).loadCredential(currentUser.getUserId());
-    Userinfo userInfo;
     try {
       userInfo = getUserInfo(credential);
     } catch (NoUserIdException exception) {
@@ -65,5 +66,28 @@ class UserDriveUtils {
     }
     throw new NoUserIdException();
   }
+  
+  public static String getUserEmail() throws IOException, NoUserIdException{
+    reloadUserInfoIfNull();
+    return userInfo.getEmail();
+  }
 
+  public static String getDomain() throws IOException, NoUserIdException {
+    reloadUserInfoIfNull();
+    return userInfo.getHd();
+  }
+  
+  public static void revoke() throws IOException{
+    User currentUser = UserServiceFactory.getUserService().getCurrentUser();
+    Credential credential = FlowUtils.getFlow(SCOPES).loadCredential(currentUser.getUserId());
+    flow.getCredentialStore().delete(currentUser.getUserId(), credential);
+  }
+
+  private static void reloadUserInfoIfNull() throws IOException, NoUserIdException {
+    if (userInfo == null){
+      User currentUser = UserServiceFactory.getUserService().getCurrentUser();
+      Credential credential = FlowUtils.getFlow(SCOPES).loadCredential(currentUser.getUserId());
+      userInfo = getUserInfo(credential);
+    }
+  }
 }
