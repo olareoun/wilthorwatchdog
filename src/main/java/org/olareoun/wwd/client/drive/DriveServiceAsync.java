@@ -16,14 +16,15 @@ package org.olareoun.wwd.client.drive;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
-import org.olareoun.wwd.shared.GwtDrive;
+import org.olareoun.wwd.shared.GwtDoc;
+import org.olareoun.wwd.shared.UsersDocs;
 
 import java.util.List;
 
 public interface DriveServiceAsync {
 
-  void getDocuments(List<String> userEmail, AsyncCallback<List<GwtDrive>> callback);
+  void getDocuments(List<String> userEmail, AsyncCallback<UsersDocs> callback);
 
-  void changePermissions(List<GwtDrive> drives, AsyncCallback<List<GwtDrive>> asyncCallback);
+  void changePermissions(List<GwtDoc> drives, AsyncCallback<List<GwtDoc>> asyncCallback);
 
 }

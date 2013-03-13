@@ -23,30 +23,31 @@ import com.google.appengine.api.users.UserServiceFactory;
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
 import org.olareoun.wwd.client.drive.DriveService;
-import org.olareoun.wwd.shared.GwtDrive;
+import org.olareoun.wwd.shared.GwtDoc;
+import org.olareoun.wwd.shared.UsersDocs;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 @SuppressWarnings("serial")
 public class DriveRemoteService extends RemoteServiceServlet implements DriveService {
 
   @Override
-  public List<GwtDrive> getDocuments(List<String> emails) throws IOException {
+  public UsersDocs getDocuments(List<String> emails) throws IOException {
     try {
-      ArrayList<GwtDrive> result = new ArrayList<GwtDrive>();
+      UsersDocs usersDocs = new UsersDocs();
       for (String email : emails) {
         Drive driveService = DriveUtils.loadDriveClient(email);
         com.google.api.services.drive.Drive.Files.List listRequest = driveService.files().list();
         FileList list = listRequest.setQ(createQ(email)).execute();
         if (list.getItems() != null) {
           for (File entry : list.getItems()) {
-            result.add(new GwtDrive(entry.getId(), entry.getTitle(), entry.getOwnerNames(), email));
+            GwtDoc gwtDoc = new GwtDoc(entry.getId(), entry.getTitle(), entry.getOwnerNames(), email);
+            usersDocs.add(email, gwtDoc);
           }
         }
       }
-      return result;
+      return usersDocs;
     } catch (IOException e) {
       throw DriveUtils.wrappedIOException(e);
     }
@@ -63,8 +64,8 @@ public class DriveRemoteService extends RemoteServiceServlet implements DriveSer
   }
 
   @Override
-  public List<GwtDrive> changePermissions(List<GwtDrive> drives) throws IOException {
-    for (GwtDrive drive: drives) {
+  public List<GwtDoc> changePermissions(List<GwtDoc> drives) throws IOException {
+    for (GwtDoc drive: drives) {
       Drive driveService = DriveUtils.loadDriveClient(drive.getEmail());
       Permission newOwnerPermission = createPermission(UserServiceFactory.getUserService().getCurrentUser().getEmail());
       try {

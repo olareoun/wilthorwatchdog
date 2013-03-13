@@ -10,14 +10,14 @@ import org.olareoun.wwd.client.users.UsersFrame;
 import org.olareoun.wwd.client.users.UsersService;
 import org.olareoun.wwd.client.users.UsersServiceAsync;
 import org.olareoun.wwd.shared.AuthenticationException;
-import org.olareoun.wwd.shared.GwtDrive;
+import org.olareoun.wwd.shared.GwtDoc;
 
 import java.util.List;
 
 public class MainScreen implements EntryPoint {
 
   DrivesFrame driveFrame;
-  List<GwtDrive> drives;
+  List<GwtDoc> drives;
 
   private AuthFrame authFrame;
   private UsersFrame usersFrame;

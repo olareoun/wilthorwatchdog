@@ -11,8 +11,10 @@ import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
-import org.olareoun.wwd.shared.GwtDrive;
+import org.olareoun.wwd.shared.GwtDoc;
+import org.olareoun.wwd.shared.UsersDocs;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class DrivesFrame extends Composite {
@@ -32,7 +34,7 @@ public class DrivesFrame extends Composite {
 
   final MainScreen mainScreen;
 
-  private List<GwtDrive> drives;
+  private UsersDocs usersDocs;
   
   public DrivesFrame(MainScreen main) {
     this.mainScreen = main;
@@ -41,7 +43,7 @@ public class DrivesFrame extends Composite {
 
   @UiHandler("addButton")
   void handleAdd(ClickEvent e) {
-    MainScreen.SERVICE.getDocuments(mainScreen.getUsers(), new AsyncCallback<List<GwtDrive>>() {
+    MainScreen.SERVICE.getDocuments(mainScreen.getUsers(), new AsyncCallback<UsersDocs>() {
 
       @Override
       public void onFailure(Throwable caught) {
@@ -49,8 +51,8 @@ public class DrivesFrame extends Composite {
       }
 
       @Override
-      public void onSuccess(List<GwtDrive> aDrives) {
-        setDrives(aDrives);
+      public void onSuccess(UsersDocs usersDocs) {
+        setDrives(usersDocs);
         refreshTable();
       }
     });
@@ -58,7 +60,7 @@ public class DrivesFrame extends Composite {
 
   @UiHandler("changeButton")
   void handleChange(ClickEvent e) {
-    MainScreen.SERVICE.changePermissions(this.drives, new AsyncCallback<List<GwtDrive>>() {
+    MainScreen.SERVICE.changePermissions(this.usersDocs.getAllDocs(), new AsyncCallback<List<GwtDoc>>() {
 
       @Override
       public void onFailure(Throwable caught) {
@@ -66,7 +68,7 @@ public class DrivesFrame extends Composite {
       }
 
       @Override
-      public void onSuccess(List<GwtDrive> aDrives) {
+      public void onSuccess(List<GwtDoc> aDrives) {
 //        setDrives(aDrives);
 //        refreshTable();
       }
@@ -74,15 +76,19 @@ public class DrivesFrame extends Composite {
   }
 
   void refreshTable() {
+    List<GwtDoc> alldocs = new ArrayList<GwtDoc>();
     drivesTable.removeAllRows();
     drivesTable.setText(0, 1, "Drive Title");
     drivesTable.setText(0, 2, "Drive Owners");
     drivesTable.getCellFormatter().addStyleName(0, 1, "methodsHeaderRow");
     drivesTable.getCellFormatter().addStyleName(0, 2, "methodsHeaderRow");
-    for (int i = 0; i < drives.size(); i++) {
-      GwtDrive drive = drives.get(i);
-      drivesTable.setText(i + 1, 1, drive.title);
-      drivesTable.setText(i + 1, 2, drive.ownerNamesString());
+    
+    alldocs = usersDocs.getAllDocs();
+    
+    for (int i = 0; i < alldocs.size(); i++) {
+      GwtDoc doc = alldocs.get(i);
+      drivesTable.setText(i + 1, 1, doc.title);
+      drivesTable.setText(i + 1, 2, doc.ownerNamesString());
     }
   }
 
@@ -94,8 +100,8 @@ public class DrivesFrame extends Composite {
     this.setVisible(true);
   }
 
-  void setDrives(List<GwtDrive> aDrives){
-    this.drives = aDrives;
+  void setDrives(UsersDocs usersDocs){
+    this.usersDocs = usersDocs;
   }
 
 }
