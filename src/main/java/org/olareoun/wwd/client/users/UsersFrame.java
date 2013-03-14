@@ -15,11 +15,16 @@
 package org.olareoun.wwd.client.users;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.event.shared.HandlerManager;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.VerticalPanel;
+
+import org.olareoun.wwd.client.drive.SearchUsersEvent;
+import org.olareoun.wwd.client.drive.UsersEventsHandler;
+import org.olareoun.wwd.client.drive.UsersFetchedEvent;
 
 import java.util.List;
 
@@ -27,11 +32,11 @@ import java.util.List;
  * @author victor@google.com (Your Name Here)
  *
  */
-public class UsersFrame  extends Composite {
+public class UsersFrame  extends Composite implements UsersEventsHandler{
 
   interface MyUiBinder extends UiBinder<VerticalPanel, UsersFrame> {
   }
-  
+
   private static MyUiBinder uiBinder = GWT.create(MyUiBinder.class);
 
   @UiField
@@ -39,8 +44,13 @@ public class UsersFrame  extends Composite {
 
   private List<String> users;
 
+  private final HandlerManager mainEventBus;
 
-  public UsersFrame() {
+
+  public UsersFrame(HandlerManager mainEventBus) {
+    this.mainEventBus = mainEventBus;
+    this.mainEventBus.addHandler(UsersFetchedEvent.TYPE, this);
+    this.mainEventBus.addHandler(SearchUsersEvent.TYPE, this);
     initWidget(uiBinder.createAndBindUi(this));
   }
 
@@ -62,4 +72,25 @@ public class UsersFrame  extends Composite {
     this.users = aUsers;
   }
 
+  @Override
+  public void onUsersFetched(List<String> users) {
+    this.users = users;
+    this.show();
+    this.usersTable.setVisible(true);
+    this.refreshTable();
+  }
+
+  @Override
+  public void onFetching() {
+    this.usersTable.setVisible(false);
+    this.usersTable.removeAllRows();
+  }
+
+  public void hide() {
+    this.setVisible(false);
+  }
+
+  private void show() {
+    this.setVisible(true);
+  }
 }

@@ -12,7 +12,8 @@ import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
-import org.olareoun.wwd.shared.GwtDrive;
+import org.olareoun.wwd.shared.GwtDoc;
+import org.olareoun.wwd.shared.UsersDocs;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,7 +25,7 @@ public class DrivesFrame extends Composite implements UsersEventsHandler{
   private static MyUiBinder uiBinder = GWT.create(MyUiBinder.class);
 
   @UiField
-  Button addButton;
+  Button searchButton;
 
   @UiField
   FlexTable drivesTable;
@@ -34,9 +35,9 @@ public class DrivesFrame extends Composite implements UsersEventsHandler{
 
   final MainScreen mainScreen;
 
-  private List<GwtDrive> drives;
-
   private final HandlerManager mainEventBus;
+
+  private UsersDocs usersDocs;
   
   public DrivesFrame(HandlerManager mainEventBus, MainScreen main) {
     this.mainEventBus = mainEventBus;
@@ -45,14 +46,15 @@ public class DrivesFrame extends Composite implements UsersEventsHandler{
     this.mainScreen = main;
     initWidget(uiBinder.createAndBindUi(this));
     
-    this.drivesTable.setVisible(false);
+    this.searchButton.setVisible(false);
     this.changeButton.setVisible(false);
   }
 
-  @UiHandler("addButton")
-  void handleAdd(ClickEvent e) {
+  @UiHandler("searchButton")
+  void handleSearch(ClickEvent e) {
     deleteDocs();
-    MainScreen.SERVICE.getDocuments(mainScreen.getUsers(), new AsyncCallback<List<GwtDrive>>() {
+    this.changeButton.setVisible(false);
+    MainScreen.SERVICE.getDocuments(mainScreen.getUsers(), new AsyncCallback<UsersDocs>() {
 
       @Override
       public void onFailure(Throwable caught) {
@@ -60,8 +62,8 @@ public class DrivesFrame extends Composite implements UsersEventsHandler{
       }
 
       @Override
-      public void onSuccess(List<GwtDrive> aDrives) {
-        setDrives(aDrives);
+      public void onSuccess(UsersDocs usersDocs) {
+        setUsersDocs(usersDocs);
         refreshTable();
         drivesTable.setVisible(true);
         changeButton.setVisible(true);
@@ -71,7 +73,7 @@ public class DrivesFrame extends Composite implements UsersEventsHandler{
 
   @UiHandler("changeButton")
   void handleChange(ClickEvent e) {
-    MainScreen.SERVICE.changePermissions(this.drives, new AsyncCallback<List<GwtDrive>>() {
+    MainScreen.SERVICE.changePermissions(this.usersDocs.getAllDocs(), new AsyncCallback<List<GwtDoc>>() {
 
       @Override
       public void onFailure(Throwable caught) {
@@ -79,7 +81,7 @@ public class DrivesFrame extends Composite implements UsersEventsHandler{
       }
 
       @Override
-      public void onSuccess(List<GwtDrive> aDrives) {
+      public void onSuccess(List<GwtDoc> aDrives) {
 //        setDrives(aDrives);
 //        refreshTable();
       }
@@ -87,15 +89,19 @@ public class DrivesFrame extends Composite implements UsersEventsHandler{
   }
 
   void refreshTable() {
+    List<GwtDoc> alldocs = new ArrayList<GwtDoc>();
     drivesTable.removeAllRows();
     drivesTable.setText(0, 1, "Drive Title");
     drivesTable.setText(0, 2, "Drive Owners");
     drivesTable.getCellFormatter().addStyleName(0, 1, "methodsHeaderRow");
     drivesTable.getCellFormatter().addStyleName(0, 2, "methodsHeaderRow");
-    for (int i = 0; i < drives.size(); i++) {
-      GwtDrive drive = drives.get(i);
-      drivesTable.setText(i + 1, 1, drive.title);
-      drivesTable.setText(i + 1, 2, drive.ownerNamesString());
+    
+    alldocs = usersDocs.getAllDocs();
+    
+    for (int i = 0; i < alldocs.size(); i++) {
+      GwtDoc doc = alldocs.get(i);
+      drivesTable.setText(i + 1, 1, doc.title);
+      drivesTable.setText(i + 1, 2, doc.ownerNamesString());
     }
   }
 
@@ -107,23 +113,26 @@ public class DrivesFrame extends Composite implements UsersEventsHandler{
     this.setVisible(true);
   }
 
-  void setDrives(List<GwtDrive> aDrives){
-    this.drives = aDrives;
+  void setUsersDocs(UsersDocs usersDocs){
+    this.usersDocs = usersDocs;
   }
 
   @Override
-  public void onFetched(List<String> users) {
+  public void onUsersFetched(List<String> users) {
     show();
+    this.searchButton.setVisible(true);
   }
 
   @Override
   public void onFetching() {
     deleteDocs();
+    hide();
+//    this.changeButton.setVisible(false);
+//    this.searchButton.setVisible(false);
   }
 
   private void deleteDocs() {
-    this.drives = new ArrayList<GwtDrive>();
-    this.refreshTable();
+    this.drivesTable.removeAllRows();
   }
 
 }

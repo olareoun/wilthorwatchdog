@@ -3,7 +3,7 @@
 
 	<g:VerticalPanel spacing='5'>
 		<g:HorizontalPanel>
-			<g:Button ui:field='addButton' enabled="true">Search Drives
+			<g:Button ui:field='searchButton' enabled="true">Search Drives
 			</g:Button>
 			<g:DecoratorPanel>
 				<g:FlexTable ui:field='drivesTable' cellPadding='3'

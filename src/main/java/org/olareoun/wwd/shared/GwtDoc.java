@@ -4,16 +4,16 @@ import java.io.Serializable;
 import java.util.List;
 
 @SuppressWarnings("serial")
-public class GwtDrive implements Serializable {
+public class GwtDoc implements Serializable {
   public String id;
   public String title;
   public List<String> ownersNames;
   public String email;
 
-  public GwtDrive() {
+  public GwtDoc() {
   }
 
-  public GwtDrive(String id, String title, List<String> ownersNames, String email) {
+  public GwtDoc(String id, String title, List<String> ownersNames, String email) {
     this.id = id;
     this.title = title;
     this.ownersNames = ownersNames;

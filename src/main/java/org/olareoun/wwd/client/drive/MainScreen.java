@@ -83,7 +83,8 @@ public class MainScreen implements EntryPoint {
     
     driveFrame = new DrivesFrame(this.eventBus, this);
     horizontalPanel.add(driveFrame);
-    
+
+    usersFrame.hide();
     driveFrame.hide();
   }
 

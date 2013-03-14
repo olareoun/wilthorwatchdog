@@ -12,9 +12,9 @@
  * the License.
  */
 
-package org.olareoun.wwd.client.users;
+package org.olareoun.wwd.client.drive;
 
-import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.event.shared.GwtEvent;
 
 import java.util.List;
 
@@ -22,10 +22,24 @@ import java.util.List;
  * @author victor@google.com (Your Name Here)
  *
  */
-public interface UsersServiceAsync {
+public class UsersFetchedEvent extends GwtEvent<UsersEventsHandler> {
 
-  void getUsers(String password, AsyncCallback<List<String>> callback);
+  public static final GwtEvent.Type<UsersEventsHandler> TYPE = new GwtEvent.Type<UsersEventsHandler>();
 
-  void hasPermission(AsyncCallback<Boolean> callback);
+  private final List<String> users;
 
+  public UsersFetchedEvent(List<String> users) {
+    this.users = users;
+  }
+
+  @Override
+  public GwtEvent.Type<UsersEventsHandler> getAssociatedType() {
+    return TYPE;
+  }
+
+  @Override
+  protected void dispatch(UsersEventsHandler handler) {
+    handler.onUsersFetched(this.users);
+  }
+  
 }

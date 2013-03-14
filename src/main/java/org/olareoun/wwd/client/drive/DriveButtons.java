@@ -21,7 +21,7 @@ import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 
-import org.olareoun.wwd.shared.GwtDrive;
+import org.olareoun.wwd.shared.GwtDoc;
 
 /**
  * Buttons for a calendar.
@@ -44,9 +44,9 @@ public class DriveButtons extends Composite {
 
   private final MainScreen main;
 
-  private final GwtDrive drive;
+  private final GwtDoc drive;
 
-  public DriveButtons(MainScreen main, GwtDrive drive, int calendarIndex) {
+  public DriveButtons(MainScreen main, GwtDoc drive, int calendarIndex) {
     this.main = main;
     this.drive = drive;
     this.calendarIndex = calendarIndex;
