@@ -2,6 +2,7 @@ package org.olareoun.wwd.client.drive;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.shared.HandlerManager;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
@@ -13,9 +14,10 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 
 import org.olareoun.wwd.shared.GwtDrive;
 
+import java.util.ArrayList;
 import java.util.List;
 
-public class DrivesFrame extends Composite {
+public class DrivesFrame extends Composite implements UsersEventsHandler{
   interface MyUiBinder extends UiBinder<VerticalPanel, DrivesFrame> {
   }
 
@@ -33,14 +35,23 @@ public class DrivesFrame extends Composite {
   final MainScreen mainScreen;
 
   private List<GwtDrive> drives;
+
+  private final HandlerManager mainEventBus;
   
-  public DrivesFrame(MainScreen main) {
+  public DrivesFrame(HandlerManager mainEventBus, MainScreen main) {
+    this.mainEventBus = mainEventBus;
+    this.mainEventBus.addHandler(UsersFetchedEvent.TYPE, this);
+    this.mainEventBus.addHandler(SearchUsersEvent.TYPE, this);
     this.mainScreen = main;
     initWidget(uiBinder.createAndBindUi(this));
+    
+    this.drivesTable.setVisible(false);
+    this.changeButton.setVisible(false);
   }
 
   @UiHandler("addButton")
   void handleAdd(ClickEvent e) {
+    deleteDocs();
     MainScreen.SERVICE.getDocuments(mainScreen.getUsers(), new AsyncCallback<List<GwtDrive>>() {
 
       @Override
@@ -52,6 +63,8 @@ public class DrivesFrame extends Composite {
       public void onSuccess(List<GwtDrive> aDrives) {
         setDrives(aDrives);
         refreshTable();
+        drivesTable.setVisible(true);
+        changeButton.setVisible(true);
       }
     });
   }
@@ -96,6 +109,21 @@ public class DrivesFrame extends Composite {
 
   void setDrives(List<GwtDrive> aDrives){
     this.drives = aDrives;
+  }
+
+  @Override
+  public void onFetched(List<String> users) {
+    show();
+  }
+
+  @Override
+  public void onFetching() {
+    deleteDocs();
+  }
+
+  private void deleteDocs() {
+    this.drives = new ArrayList<GwtDrive>();
+    this.refreshTable();
   }
 
 }

@@ -2,7 +2,9 @@ package org.olareoun.wwd.client.drive;
 
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.event.shared.HandlerManager;
 import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.RootPanel;
 
@@ -10,17 +12,16 @@ import org.olareoun.wwd.client.users.UsersFrame;
 import org.olareoun.wwd.client.users.UsersService;
 import org.olareoun.wwd.client.users.UsersServiceAsync;
 import org.olareoun.wwd.shared.AuthenticationException;
-import org.olareoun.wwd.shared.GwtDrive;
 
 import java.util.List;
 
 public class MainScreen implements EntryPoint {
 
-  DrivesFrame driveFrame;
-  List<GwtDrive> drives;
-
+  private DrivesFrame driveFrame;
   private AuthFrame authFrame;
   private UsersFrame usersFrame;
+  
+  private HandlerManager eventBus;
 
   private RootPanel rootPanel;
 
@@ -30,21 +31,24 @@ public class MainScreen implements EntryPoint {
 
   @Override
   public void onModuleLoad() {
+    this.eventBus = new HandlerManager(this);
+
     rootPanel = RootPanel.get("main");
     
-    authFrame = new AuthFrame(this);
-    rootPanel.add(authFrame);
-    
-    horizontalPanel = new HorizontalPanel();
-    rootPanel.add(horizontalPanel);
-    
-    usersFrame = new UsersFrame();
-    horizontalPanel.add(usersFrame);
-
-    driveFrame = new DrivesFrame(this);
-    horizontalPanel.add(driveFrame);
-
-    driveFrame.hide();
+    USERS_SERVICE.hasPermission(new AsyncCallback<Boolean>() {
+      @Override
+      public void onSuccess(Boolean result) {
+        if (result){
+          initScreen();
+        } else {
+          Window.alert("Logged users is not admin");
+        }
+      }
+      @Override
+      public void onFailure(Throwable caught) {
+        Window.alert("Failed to check user permission");
+      }
+    });
     
   }
   
@@ -65,6 +69,22 @@ public class MainScreen implements EntryPoint {
 
   public List<String> getUsers() {
     return usersFrame.getUsers();
+  }
+
+  void initScreen() {
+    authFrame = new AuthFrame(this.eventBus);
+    rootPanel.add(authFrame);
+    
+    horizontalPanel = new HorizontalPanel();
+    rootPanel.add(horizontalPanel);
+    
+    usersFrame = new UsersFrame(this.eventBus);
+    horizontalPanel.add(usersFrame);
+    
+    driveFrame = new DrivesFrame(this.eventBus, this);
+    horizontalPanel.add(driveFrame);
+    
+    driveFrame.hide();
   }
 
 }

@@ -16,6 +16,7 @@ package org.olareoun.wwd.client.drive;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.shared.HandlerManager;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
@@ -38,34 +39,35 @@ public class AuthFrame  extends Composite {
   
   private static MyUiBinder uiBinder = GWT.create(MyUiBinder.class);
 
-  final MainScreen mainScreen;
-
   @UiField
   PasswordTextBox passTextBox;
 
   @UiField
   Button addButton;
 
-  public AuthFrame(MainScreen mainScreen) {
-    this.mainScreen = mainScreen;
+  final HandlerManager mainEventBus;
+
+  public AuthFrame(HandlerManager mainEventBus) {
     initWidget(uiBinder.createAndBindUi(this));
+
+    this.mainEventBus = mainEventBus;
+
   }
 
   @UiHandler("addButton")
   void handleAdd(ClickEvent e) {
+    this.mainEventBus.fireEvent(new SearchUsersEvent());
     String password = passTextBox.getText();
     if (password != null) {
       passTextBox.setText("");
       MainScreen.USERS_SERVICE.getUsers(password, new AsyncCallback<List<String>>() {
-
         @Override
         public void onFailure(Throwable caught) {
           MainScreen.handleFailure(caught);
         }
-
         @Override
-        public void onSuccess(List<String> result) {
-          mainScreen.refreshUsersTable(result);
+        public void onSuccess(List<String> users) {
+          mainEventBus.fireEvent(new UsersFetchedEvent(users));
         }
       });
     }
