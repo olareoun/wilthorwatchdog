@@ -1,91 +1,53 @@
 package org.olareoun.wwd.client.drive;
 
-import com.google.gwt.core.client.GWT;
-import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.shared.HandlerManager;
-import com.google.gwt.uibinder.client.UiBinder;
-import com.google.gwt.uibinder.client.UiField;
-import com.google.gwt.uibinder.client.UiHandler;
-import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlexTable;
-import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.HorizontalPanel;
 
+import org.olareoun.wwd.client.users.DocsEventsHandler;
+import org.olareoun.wwd.client.users.DocsFetchedEvent;
+import org.olareoun.wwd.client.users.SearchDocsEvent;
 import org.olareoun.wwd.shared.GwtDoc;
 import org.olareoun.wwd.shared.UsersDocs;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class DrivesFrame extends Composite implements UsersEventsHandler{
-  interface MyUiBinder extends UiBinder<VerticalPanel, DrivesFrame> {
-  }
+public class DrivesFrame extends Composite implements UsersEventsHandler, DocsEventsHandler{
 
-  private static MyUiBinder uiBinder = GWT.create(MyUiBinder.class);
-
-  @UiField
-  Button searchButton;
-
-  @UiField
   FlexTable drivesTable;
-
-  @UiField
-  Button changeButton;
 
   final MainScreen mainScreen;
 
   private final HandlerManager mainEventBus;
 
   private UsersDocs usersDocs;
+
+  protected ChangeFrame changeFrame;
+
+  private HorizontalPanel horizontalPanel;
   
   public DrivesFrame(HandlerManager mainEventBus, MainScreen main) {
     this.mainEventBus = mainEventBus;
     this.mainEventBus.addHandler(UsersFetchedEvent.TYPE, this);
     this.mainEventBus.addHandler(SearchUsersEvent.TYPE, this);
+    this.mainEventBus.addHandler(DocsFetchedEvent.TYPE, this);
+    this.mainEventBus.addHandler(SearchDocsEvent.TYPE, this);
     this.mainScreen = main;
-    initWidget(uiBinder.createAndBindUi(this));
     
-    this.searchButton.setVisible(false);
-    this.changeButton.setVisible(false);
-  }
+    this.changeFrame = new ChangeFrame(mainEventBus);
+    this.changeFrame.hide();
 
-  @UiHandler("searchButton")
-  void handleSearch(ClickEvent e) {
-    deleteDocs();
-    this.changeButton.setVisible(false);
-    MainScreen.SERVICE.getDocuments(mainScreen.getUsers(), new AsyncCallback<UsersDocs>() {
+    this.drivesTable = new FlexTable();
+   
+    
+    this.horizontalPanel = new HorizontalPanel();
 
-      @Override
-      public void onFailure(Throwable caught) {
-        MainScreen.handleFailure(caught);
-      }
-
-      @Override
-      public void onSuccess(UsersDocs usersDocs) {
-        setUsersDocs(usersDocs);
-        refreshTable();
-        drivesTable.setVisible(true);
-        changeButton.setVisible(true);
-      }
-    });
-  }
-
-  @UiHandler("changeButton")
-  void handleChange(ClickEvent e) {
-    MainScreen.SERVICE.changePermissions(this.usersDocs.getAllDocs(), new AsyncCallback<List<GwtDoc>>() {
-
-      @Override
-      public void onFailure(Throwable caught) {
-//        MainScreen.handleFailure(caught);
-      }
-
-      @Override
-      public void onSuccess(List<GwtDoc> aDrives) {
-//        setDrives(aDrives);
-//        refreshTable();
-      }
-    });
+    this.horizontalPanel.add(this.drivesTable);
+    this.horizontalPanel.add(changeFrame);
+    
+    initWidget(this.horizontalPanel);
   }
 
   void refreshTable() {
@@ -120,19 +82,29 @@ public class DrivesFrame extends Composite implements UsersEventsHandler{
   @Override
   public void onUsersFetched(List<String> users) {
     show();
-    this.searchButton.setVisible(true);
   }
 
   @Override
   public void onFetching() {
     deleteDocs();
     hide();
-//    this.changeButton.setVisible(false);
-//    this.searchButton.setVisible(false);
   }
 
   private void deleteDocs() {
     this.drivesTable.removeAllRows();
+  }
+
+  @Override
+  public void onDocsFetching() {
+    this.hide();
+  }
+
+  @Override
+  public void onDocsFetched(UsersDocs usersDocs) {
+    this.usersDocs = usersDocs;
+    this.refreshTable();
+    this.changeFrame.show();
+    this.show();
   }
 
 }

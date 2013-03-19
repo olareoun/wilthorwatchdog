@@ -1,30 +1,19 @@
-/*
- * Copyright (c) 2011 Google Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License. You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the License
- * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
- * or implied. See the License for the specific language governing permissions and limitations under
- * the License.
- */
-
 package org.olareoun.wwd.client.users;
 
-import com.google.gwt.core.client.GWT;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.shared.HandlerManager;
-import com.google.gwt.uibinder.client.UiBinder;
-import com.google.gwt.uibinder.client.UiField;
+import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlexTable;
-import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.HorizontalPanel;
 
+import org.olareoun.wwd.client.drive.MainScreen;
 import org.olareoun.wwd.client.drive.SearchUsersEvent;
 import org.olareoun.wwd.client.drive.UsersEventsHandler;
 import org.olareoun.wwd.client.drive.UsersFetchedEvent;
+import org.olareoun.wwd.shared.UsersDocs;
 
 import java.util.List;
 
@@ -34,24 +23,36 @@ import java.util.List;
  */
 public class UsersFrame  extends Composite implements UsersEventsHandler{
 
-  interface MyUiBinder extends UiBinder<VerticalPanel, UsersFrame> {
-  }
-
-  private static MyUiBinder uiBinder = GWT.create(MyUiBinder.class);
-
-  @UiField
+  Button searchButton;
   FlexTable usersTable;
-
   private List<String> users;
-
-  private final HandlerManager mainEventBus;
+  final HandlerManager mainEventBus;
+  private HorizontalPanel panel;
 
 
   public UsersFrame(HandlerManager mainEventBus) {
     this.mainEventBus = mainEventBus;
     this.mainEventBus.addHandler(UsersFetchedEvent.TYPE, this);
     this.mainEventBus.addHandler(SearchUsersEvent.TYPE, this);
-    initWidget(uiBinder.createAndBindUi(this));
+
+    this.panel = new HorizontalPanel();
+    this.usersTable = new FlexTable();
+    this.panel.add(this.usersTable);
+    initSearchButton();
+    this.panel.add(this.searchButton);
+
+    this.initWidget(this.panel);
+  }
+
+  private void initSearchButton() {
+    this.searchButton = new Button("Search Docs");
+    this.searchButton.setVisible(false);
+    this.searchButton.addClickHandler(new ClickHandler() {
+      @Override
+      public void onClick(ClickEvent event) {
+        handleSearch(event);
+      }
+    });
   }
 
   public void refreshTable() {
@@ -78,12 +79,14 @@ public class UsersFrame  extends Composite implements UsersEventsHandler{
     this.show();
     this.usersTable.setVisible(true);
     this.refreshTable();
+    this.searchButton.setVisible(true);
   }
 
   @Override
   public void onFetching() {
     this.usersTable.setVisible(false);
     this.usersTable.removeAllRows();
+    this.searchButton.setVisible(false);
   }
 
   public void hide() {
@@ -93,4 +96,21 @@ public class UsersFrame  extends Composite implements UsersEventsHandler{
   private void show() {
     this.setVisible(true);
   }
+
+  void handleSearch(ClickEvent e) {
+    this.mainEventBus.fireEvent(new SearchDocsEvent());
+    MainScreen.SERVICE.getDocuments(this.users, new AsyncCallback<UsersDocs>() {
+
+      @Override
+      public void onFailure(Throwable caught) {
+        MainScreen.handleFailure(caught);
+      }
+
+      @Override
+      public void onSuccess(UsersDocs usersDocs) {
+        mainEventBus.fireEvent(new DocsFetchedEvent(usersDocs));
+      }
+    });
+  }
+
 }

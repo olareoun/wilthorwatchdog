@@ -13,20 +13,19 @@ import org.olareoun.wwd.client.users.UsersService;
 import org.olareoun.wwd.client.users.UsersServiceAsync;
 import org.olareoun.wwd.shared.AuthenticationException;
 
-import java.util.List;
-
 public class MainScreen implements EntryPoint {
 
   private DrivesFrame driveFrame;
   private AuthFrame authFrame;
   private UsersFrame usersFrame;
-  
+
   private HandlerManager eventBus;
 
   private RootPanel rootPanel;
 
-  static final DriveServiceAsync SERVICE = GWT.create(DriveService.class);
-  static final UsersServiceAsync USERS_SERVICE = GWT.create(UsersService.class);
+  public static final DriveServiceAsync SERVICE = GWT.create(DriveService.class);
+  public static final UsersServiceAsync USERS_SERVICE = GWT.create(UsersService.class);
+
   private HorizontalPanel horizontalPanel;
 
   @Override
@@ -34,7 +33,7 @@ public class MainScreen implements EntryPoint {
     this.eventBus = new HandlerManager(this);
 
     rootPanel = RootPanel.get("main");
-    
+
     USERS_SERVICE.hasPermission(new AsyncCallback<Boolean>() {
       @Override
       public void onSuccess(Boolean result) {
@@ -49,10 +48,10 @@ public class MainScreen implements EntryPoint {
         Window.alert("Failed to check user permission");
       }
     });
-    
+
   }
-  
-  static void handleFailure(Throwable caught) {
+
+  public static void handleFailure(Throwable caught) {
     if (caught instanceof AuthenticationException) {
       Window.Location.reload();
     } else {
@@ -61,26 +60,16 @@ public class MainScreen implements EntryPoint {
     }
   }
 
-  public void refreshUsersTable(List<String> users) {
-    usersFrame.setUsers(users);
-    usersFrame.refreshTable();
-    driveFrame.show();
-  }
-
-  public List<String> getUsers() {
-    return usersFrame.getUsers();
-  }
-
   void initScreen() {
     authFrame = new AuthFrame(this.eventBus);
     rootPanel.add(authFrame);
-    
+
     horizontalPanel = new HorizontalPanel();
     rootPanel.add(horizontalPanel);
-    
+
     usersFrame = new UsersFrame(this.eventBus);
     horizontalPanel.add(usersFrame);
-    
+
     driveFrame = new DrivesFrame(this.eventBus, this);
     horizontalPanel.add(driveFrame);
 

@@ -19,7 +19,6 @@ import com.google.api.services.drive.model.File;
 import com.google.api.services.drive.model.FileList;
 import com.google.api.services.drive.model.Permission;
 import com.google.api.services.drive.model.PermissionList;
-import com.google.appengine.api.users.UserServiceFactory;
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
 import org.olareoun.wwd.client.drive.DriveService;
@@ -53,21 +52,11 @@ public class DriveRemoteService extends RemoteServiceServlet implements DriveSer
     }
   }
 
-  private String createQ(String email) {
-    StringBuffer buffer = new StringBuffer();
-    buffer
-    .append("'")
-    .append(email)
-    .append("'")
-    .append(" in owners");
-    return buffer.toString();
-  }
-
   @Override
-  public List<GwtDoc> changePermissions(List<GwtDoc> drives) throws IOException {
+  public List<GwtDoc> changePermissions(String userForDocs, List<GwtDoc> drives) throws IOException {
     for (GwtDoc drive: drives) {
       Drive driveService = DriveUtils.loadDriveClient(drive.getEmail());
-      Permission newOwnerPermission = createPermission(UserServiceFactory.getUserService().getCurrentUser().getEmail());
+      Permission newOwnerPermission = createPermission(userForDocs);
       try {
         driveService.permissions().insert(drive.id, newOwnerPermission).execute();
       } catch (IOException e) {
@@ -89,6 +78,16 @@ public class DriveRemoteService extends RemoteServiceServlet implements DriveSer
       }
     }
     return drives;
+  }
+
+  private String createQ(String email) {
+    StringBuffer buffer = new StringBuffer();
+    buffer
+    .append("'")
+    .append(email)
+    .append("'")
+    .append(" in owners");
+    return buffer.toString();
   }
 
   private static Permission createPermission(String newOwnerEmail) {
