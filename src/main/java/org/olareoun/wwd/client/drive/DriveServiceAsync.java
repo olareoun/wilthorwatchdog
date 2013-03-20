@@ -25,6 +25,6 @@ public interface DriveServiceAsync {
 
   void getDocuments(List<String> userEmail, AsyncCallback<UsersDocs> callback);
 
-  void changePermissions(List<GwtDoc> drives, AsyncCallback<List<GwtDoc>> asyncCallback);
+  void changePermissions(UsersDocs usersDocs, AsyncCallback<List<GwtDoc>> asyncCallback);
 
 }

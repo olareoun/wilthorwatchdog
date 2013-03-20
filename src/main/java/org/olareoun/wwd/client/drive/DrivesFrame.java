@@ -60,7 +60,7 @@ public class DrivesFrame extends Composite {
 
   @UiHandler("changeButton")
   void handleChange(ClickEvent e) {
-    MainScreen.SERVICE.changePermissions(this.usersDocs.getAllDocs(), new AsyncCallback<List<GwtDoc>>() {
+    MainScreen.SERVICE.changePermissions(this.usersDocs, new AsyncCallback<List<GwtDoc>>() {
 
       @Override
       public void onFailure(Throwable caught) {

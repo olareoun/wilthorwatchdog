@@ -33,6 +33,6 @@ public interface DriveService extends RemoteService {
 
   UsersDocs getDocuments(List<String> userEmail) throws IOException;
 
-  List<GwtDoc> changePermissions(List<GwtDoc> drives) throws IOException;
+  List<GwtDoc> changePermissions(UsersDocs usersDocs) throws IOException;
 
 }

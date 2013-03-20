@@ -51,6 +51,12 @@ public class UsersDocs implements Serializable {
     }
     docs.add(doc);
   }
+  
+  public Iterator<String> iterator () {
+    java.util.Iterator<String> iterator = this.map.keySet().iterator();
+    return iterator;
+  }
+  
   public List<GwtDoc> getAllDocs() {
     
     Collection<List<GwtDoc>> listsdocs = this.map.values();
