@@ -14,18 +14,24 @@
 
 package org.olareoun.wwd.client.users;
 
-import com.google.gwt.user.client.rpc.AsyncCallback;
-
-import java.util.List;
+import com.google.gwt.event.shared.GwtEvent;
 
 /**
  * @author victor@google.com (Your Name Here)
  *
  */
-public interface UsersServiceAsync {
+public class SearchDocsEvent extends GwtEvent<DocsEventsHandler> {
 
-  void getUsers(String password, AsyncCallback<List<String>> callback);
+  public static final GwtEvent.Type<DocsEventsHandler> TYPE = new GwtEvent.Type<DocsEventsHandler>();
 
-  void hasPermission(AsyncCallback<Boolean> callback);
+  @Override
+  public GwtEvent.Type<DocsEventsHandler> getAssociatedType() {
+    return TYPE;
+  }
+
+  @Override
+  protected void dispatch(DocsEventsHandler handler) {
+    handler.onDocsFetching();
+  }
 
 }

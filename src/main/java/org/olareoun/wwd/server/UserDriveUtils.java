@@ -25,6 +25,10 @@ public class UserDriveUtils {
   private static GoogleAuthorizationCodeFlow flow = null;
 
   private static Userinfo userInfo;
+  
+  public static boolean isAdmin(){
+    return UserServiceFactory.getUserService().isUserAdmin();
+  }
 
   public static String getRedirectUri(HttpServletRequest req) {
     GenericUrl url = new GenericUrl(req.getRequestURL().toString());

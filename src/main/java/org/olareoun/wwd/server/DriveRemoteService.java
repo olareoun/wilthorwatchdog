@@ -22,7 +22,6 @@ import com.google.api.services.drive.model.File;
 import com.google.api.services.drive.model.FileList;
 import com.google.api.services.drive.model.Permission;
 import com.google.api.services.drive.model.PermissionList;
-import com.google.appengine.api.users.UserServiceFactory;
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
 import org.olareoun.wwd.client.drive.DriveService;
@@ -135,29 +134,29 @@ public class DriveRemoteService extends RemoteServiceServlet implements DriveSer
 
 
   @Override
-  public List<GwtDoc> changePermissions(UsersDocs usersDocs) throws IOException {
+  public List<GwtDoc> changePermissions(String userForDocs, UsersDocs usersDocs) throws IOException {
     Iterator<String> emailIterator = usersDocs.iterator();
     while (emailIterator.hasNext()) {
       String email = emailIterator.next();
       List<GwtDoc> emailDocs = usersDocs.get(email);
-      changeUserDocsPermissions(email, emailDocs);
+      changeUserDocsPermissions(email, emailDocs, userForDocs);
     }
     return usersDocs.getAllDocs();
   }
 
 
-  private void changeUserDocsPermissions(String email, List<GwtDoc> emailDocs)
+  private void changeUserDocsPermissions(String email, List<GwtDoc> emailDocs, String userForDocs)
       throws IOException {
     
     Drive driveService = DriveUtils.loadDriveClient(email);
     for (GwtDoc doc: emailDocs) {
-      changeDocPermission(driveService, doc);
+      changeDocPermission(driveService, doc, userForDocs);
     }
   }
 
 
-  private void changeDocPermission(Drive driveService, GwtDoc doc) throws IOException {
-    Permission newOwnerPermission = createPermission(UserServiceFactory.getUserService().getCurrentUser().getEmail());
+  private void changeDocPermission(Drive driveService, GwtDoc doc, String userForDocs) throws IOException {
+    Permission newOwnerPermission = createPermission(userForDocs);
     try {
       driveService.permissions().insert(doc.id, newOwnerPermission).execute();
     } catch (IOException e) {

@@ -1,78 +1,49 @@
 package org.olareoun.wwd.client.drive;
 
-import com.google.gwt.core.client.GWT;
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.uibinder.client.UiBinder;
-import com.google.gwt.uibinder.client.UiField;
-import com.google.gwt.uibinder.client.UiHandler;
-import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.event.shared.HandlerManager;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlexTable;
-import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.HorizontalPanel;
 
+import org.olareoun.wwd.client.users.DocsEventsHandler;
+import org.olareoun.wwd.client.users.DocsFetchedEvent;
+import org.olareoun.wwd.client.users.SearchDocsEvent;
 import org.olareoun.wwd.shared.GwtDoc;
 import org.olareoun.wwd.shared.UsersDocs;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class DrivesFrame extends Composite {
-  interface MyUiBinder extends UiBinder<VerticalPanel, DrivesFrame> {
-  }
+public class DrivesFrame extends Composite implements UsersEventsHandler, DocsEventsHandler{
 
-  private static MyUiBinder uiBinder = GWT.create(MyUiBinder.class);
-
-  @UiField
-  Button addButton;
-
-  @UiField
   FlexTable drivesTable;
-
-  @UiField
-  Button changeButton;
 
   final MainScreen mainScreen;
 
+  private final HandlerManager mainEventBus;
+
   private UsersDocs usersDocs;
+
+  protected ChangeFrame changeFrame;
+
+  private HorizontalPanel horizontalPanel;
   
-  public DrivesFrame(MainScreen main) {
+  public DrivesFrame(HandlerManager mainEventBus, MainScreen main) {
+    this.mainEventBus = mainEventBus;
+    this.mainEventBus.addHandler(UsersFetchedEvent.TYPE, this);
+    this.mainEventBus.addHandler(SearchUsersEvent.TYPE, this);
+    this.mainEventBus.addHandler(DocsFetchedEvent.TYPE, this);
+    this.mainEventBus.addHandler(SearchDocsEvent.TYPE, this);
     this.mainScreen = main;
-    initWidget(uiBinder.createAndBindUi(this));
-  }
+    this.changeFrame = new ChangeFrame(mainEventBus);
+    this.changeFrame.hide();
+    this.drivesTable = new FlexTable();
+    this.horizontalPanel = new HorizontalPanel();
+    this.horizontalPanel.add(this.drivesTable);
+    this.horizontalPanel.add(changeFrame);
+    
+    initWidget(this.horizontalPanel);
 
-  @UiHandler("addButton")
-  void handleAdd(ClickEvent e) {
-    MainScreen.SERVICE.getDocuments(mainScreen.getUsers(), new AsyncCallback<UsersDocs>() {
-
-      @Override
-      public void onFailure(Throwable caught) {
-        MainScreen.handleFailure(caught);
-      }
-
-      @Override
-      public void onSuccess(UsersDocs usersDocs) {
-        setDrives(usersDocs);
-        refreshTable();
-      }
-    });
-  }
-
-  @UiHandler("changeButton")
-  void handleChange(ClickEvent e) {
-    MainScreen.SERVICE.changePermissions(this.usersDocs, new AsyncCallback<List<GwtDoc>>() {
-
-      @Override
-      public void onFailure(Throwable caught) {
-//        MainScreen.handleFailure(caught);
-      }
-
-      @Override
-      public void onSuccess(List<GwtDoc> aDrives) {
-//        setDrives(aDrives);
-//        refreshTable();
-      }
-    });
   }
 
   void refreshTable() {
@@ -100,8 +71,36 @@ public class DrivesFrame extends Composite {
     this.setVisible(true);
   }
 
-  void setDrives(UsersDocs usersDocs){
+  void setUsersDocs(UsersDocs usersDocs){
     this.usersDocs = usersDocs;
+  }
+
+  @Override
+  public void onUsersFetched(List<String> users) {
+    show();
+  }
+
+  @Override
+  public void onFetching() {
+    deleteDocs();
+    hide();
+  }
+
+  private void deleteDocs() {
+    this.drivesTable.removeAllRows();
+  }
+
+  @Override
+  public void onDocsFetching() {
+    this.hide();
+  }
+
+  @Override
+  public void onDocsFetched(UsersDocs usersDocs) {
+    this.usersDocs = usersDocs;
+    this.refreshTable();
+    this.changeFrame.show();
+    this.show();
   }
 
 }

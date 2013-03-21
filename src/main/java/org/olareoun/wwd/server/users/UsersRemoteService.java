@@ -38,6 +38,12 @@ import java.util.List;
 public class UsersRemoteService extends RemoteServiceServlet implements UsersService {
 
   @Override
+  public boolean hasPermission(){
+    return true;
+//    return UserDriveUtils.isAdmin();
+  }
+
+  @Override
   public List<String> getUsers(String password) {
     List<String> usersEmails = new ArrayList<String>();
     try {
@@ -49,25 +55,13 @@ public class UsersRemoteService extends RemoteServiceServlet implements UsersSer
         usersEmails.add(UserToEmailConverter.convert(entry.getId(), domain));
       }
     } catch (AuthenticationException exception) {
-      // TODO Auto-generated catch block
       exception.printStackTrace();
     } catch (IOException exception) {
-      // TODO Auto-generated catch block
       exception.printStackTrace();
     } catch (NoUserIdException exception) {
-      try {
-        UserDriveUtils.revoke();
-      } catch (IOException exception1) {
-        // TODO Auto-generated catch block
-        exception1.printStackTrace();
-      }
-      // TODO Auto-generated catch block
-      exception.printStackTrace();
     } catch (AppsForYourDomainException exception) {
-      // TODO Auto-generated catch block
       exception.printStackTrace();
     } catch (ServiceException exception) {
-      // TODO Auto-generated catch block
       exception.printStackTrace();
     }
     return usersEmails;

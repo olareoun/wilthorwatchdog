@@ -21,6 +21,7 @@ public class GwtDoc implements Serializable {
   }
   
   public String ownerNamesString(){
+    if (ownersNames.isEmpty()) return "";
     StringBuffer buf = new StringBuffer();
     for (String name : ownersNames) {
       buf.append(name).append(",");

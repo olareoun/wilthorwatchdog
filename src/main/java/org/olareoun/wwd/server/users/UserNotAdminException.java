@@ -12,20 +12,14 @@
  * the License.
  */
 
-package org.olareoun.wwd.client.users;
-
-import com.google.gwt.user.client.rpc.AsyncCallback;
-
-import java.util.List;
+package org.olareoun.wwd.server.users;
 
 /**
  * @author victor@google.com (Your Name Here)
  *
  */
-public interface UsersServiceAsync {
+public class UserNotAdminException extends Exception {
 
-  void getUsers(String password, AsyncCallback<List<String>> callback);
-
-  void hasPermission(AsyncCallback<Boolean> callback);
+  private static final long serialVersionUID = 5443940360759868841L;
 
 }

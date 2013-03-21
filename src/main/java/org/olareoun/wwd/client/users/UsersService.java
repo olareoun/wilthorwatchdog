@@ -25,7 +25,9 @@ import java.util.List;
  */
 @RemoteServiceRelativePath("usersService")
 public interface UsersService extends RemoteService {
-
+  
   List<String> getUsers(String password);
+
+  boolean hasPermission();
 
 }
