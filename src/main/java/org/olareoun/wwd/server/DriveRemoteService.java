@@ -15,6 +15,8 @@
 package org.olareoun.wwd.server;
 
 
+import com.google.api.client.googleapis.json.GoogleJsonError;
+import com.google.api.client.googleapis.json.GoogleJsonResponseException;
 import com.google.api.client.http.HttpResponseException;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.Drive.Files;
@@ -31,7 +33,7 @@ import org.olareoun.wwd.shared.UsersDocs;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
-//import com.google.api.services.drive.Drive.Files.List;
+
 
 
 @SuppressWarnings("serial")
@@ -42,108 +44,189 @@ public class DriveRemoteService extends RemoteServiceServlet implements DriveSer
     try {
       UsersDocs usersDocs = new UsersDocs();
       for (String email : emails) {
+
         getOwnedDocs(usersDocs, email);
       }
       return usersDocs;
     } catch (IOException e) {
+      System.out.println(e.getMessage());
       throw DriveUtils.wrappedIOException(e);
     }
   }
-
-  private void getOwnedDocs(UsersDocs usersDocs, String email) throws IOException {
-    Drive driveService = DriveUtils.loadDriveClient(email);
-    Files.List listRequest = driveService.files().list();
-    String privateFolderId = getPrivateFolderId(listRequest);
-    FileList list = getListOwnedDocs(driveService, listRequest, email);
-    
-    
   
-    if (list.getItems() != null){
-      for (File doc : list.getItems()) {
-        if (isFileInPrivateFolder(driveService, privateFolderId, doc.getId()) == false)
-        insertOwnedDocs(usersDocs, email, doc);
-      }
-    }
-  }
-
-  private String getPrivateFolderId(Files.List listRequest) throws IOException {
-    
-    File doc = null;
-    String title, folderId = null;
-    boolean findPrivate = false;
-    int i=0;
-    FileList fileList;
-    
-    fileList = listRequest.execute();
-    while (i < fileList.getItems().size() && !findPrivate) {
-      doc = fileList.getItems().get(i);
-      title = doc.getTitle();
-      if (title.contentEquals("Private")) {
-        folderId = doc.getId();
-        findPrivate = true;
-      }
-      i++;
-    }
-      return folderId;
-  }
-  
-  private void insertOwnedDocs(UsersDocs usersDocs, String email, File doc) {
-    GwtDoc gwtDoc = new GwtDoc(doc.getId(), doc.getTitle(), doc.getOwnerNames(), email);
-    usersDocs.add(email, gwtDoc);
-  }
-
-  private static boolean isFileInPrivateFolder(Drive driveService, String privateFolderId, String fileId) throws IOException {
-    
-    if (privateFolderId == null) {
-      return false;
-    }
-    else if (fileId.contentEquals(privateFolderId)) {  
-      return true;
-    }
-    else 
-    {
-     try {
-     driveService.parents().get(fileId,privateFolderId).execute();
-     } catch (HttpResponseException e) {
-      if (e.getStatusCode() == 404) {
-        return false;
-      } else {
-        System.out.println("An error ocurred:" + e);
-        throw e;
-      }
-      
-     } catch (IOException e) {
-      System.out.println("An error ocurred: " + e);
-      throw e;
-     }
-    
-    return true;
-    }
-  }
-  
-  
-  private FileList getListOwnedDocs(Drive driveService, Files.List listRequest, String email) throws IOException {
-    
-    FileList list = listRequest.setQ(searchOwners(email)).execute();
-    System.out.println(listRequest.toString());
-    return list;
-  }
-  
-  
-
-
-
   @Override
   public List<GwtDoc> changePermissions(String userForDocs, UsersDocs usersDocs) throws IOException {
     Iterator<String> emailIterator = usersDocs.iterator();
     while (emailIterator.hasNext()) {
       String email = emailIterator.next();
       List<GwtDoc> emailDocs = usersDocs.get(email);
+      if (!email.contentEquals(userForDocs)) {
       changeUserDocsPermissions(email, emailDocs, userForDocs);
+      }
     }
     return usersDocs.getAllDocs();
   }
 
+  private void getOwnedDocs(UsersDocs usersDocs, String email) throws IOException {
+    
+   // String privateId = null;
+   // List<String> privateFolderIds = new ArrayList<String>();
+    Drive driveService = DriveUtils.loadDriveClient(email);
+    Files.List listRequest = driveService.files().list();
+    
+    do {
+     try {  
+         //FileList fileList = listRequest.execute();
+         FileList fileList = getListOwnedDocs(driveService, listRequest, email);
+         /*privateId = getPrivateId(fileList, driveService);
+         if (privateId != null) {
+           privateFolderIds = getPrivateFolderIds(driveService, privateId);
+         }*/
+    
+         //FileList list = getListOwnedDocs(driveService, listRequest, email);  
+  
+         if (fileList.getItems() != null){
+           for (File doc : fileList.getItems()) {
+             //if (!isFileInPrivateFolder(driveService, privateFolderIds, doc.getId()))
+               insertOwnedDocs(usersDocs, email, doc);
+           }
+         }
+         listRequest.setPageToken(fileList.getNextPageToken());
+     } catch (IOException e) {
+       System.out.println ("An error occurred: " + e);
+       listRequest.setPageToken(null);
+     }
+    } while (listRequest.getPageToken() != null && listRequest.getPageToken().length() > 0);
+  }
+
+  /*private static List<File> retrieveAllFiles (Drive driveService, String email) throws IOException {
+    
+    List<File> allFiles = new ArrayList<File>();
+    Files.List request = driveService.files().list();
+    do {
+      try {
+        FileList files = request.setQ(searchOwners(email)).execute();
+        
+        allFiles.addAll(files.getItems());
+        request.setPageToken(files.getNextPageToken());
+      } catch (IOException e) {
+        System.out.println("An error occurred while retrieven files in drive: " + e);
+        request.setPageToken(null);
+      }
+    } while (request.getPageToken() != null && request.getPageToken().length() > 0);
+   
+    return allFiles;
+  }
+  
+  private List <String> getPrivateFolderIds(Drive driveService, String privateId) throws IOException {
+    
+    String childId = null;
+    List<String> privateFolderIds = new ArrayList<String> ();  
+         privateFolderIds.add(privateId);
+         Children.List requestChilds = driveService.children().list(privateId);
+         ChildList children = requestChilds.execute();
+         for (ChildReference child : children.getItems()) {
+           childId = child.getId();
+           if (isFolder(driveService, childId)) {
+             privateFolderIds.add(childId);
+             getChildFolders(driveService, childId, privateFolderIds);
+           } 
+         }
+    
+    return privateFolderIds;
+  }
+  
+
+  
+  private void getChildFolders(Drive driveService, String childId, List<String> privateFolderIds) throws IOException {
+
+
+    Children.List requestChilds = driveService.children().list(childId);
+    ChildList children = requestChilds.execute();
+    for (ChildReference child : children.getItems()) {
+      childId = child.getId();
+      if (isFolder(driveService, childId)) {
+      privateFolderIds.add(childId);
+      getChildFolders(driveService, childId, privateFolderIds);
+      }
+    }
+
+  }
+  
+  private boolean isFolder (Drive driveService, String fileId) throws IOException {
+    File file;
+    String fileType;
+    file = driveService.files().get(fileId).execute();
+    fileType = file.getMimeType();
+    if (fileType.contentEquals("application/vnd.google-apps.folder")) {
+      return true;
+    }
+    else {return false;}
+    
+  }
+  
+  private String getPrivateId(FileList fileList, Drive driveService) throws IOException {
+    int item = 0;
+    boolean findPrivate=false;
+    File doc = null;
+    String title,privateFolderId = null;
+    
+    while (item < fileList.getItems().size() && !findPrivate) {
+      doc = fileList.getItems().get(item);
+      title = doc.getTitle();
+      if (title.contentEquals("Private") && isFolder(driveService,doc.getId())) {
+        privateFolderId = doc.getId();
+        findPrivate = true;
+      }
+      item++;
+    }
+      return privateFolderId;
+  
+  }*/
+  
+  private void insertOwnedDocs(UsersDocs usersDocs, String email, File doc) {
+    GwtDoc gwtDoc = new GwtDoc(doc.getId(), doc.getTitle(), doc.getOwnerNames(), email);
+    usersDocs.add(email, gwtDoc);
+  }
+
+  /*
+  private static boolean isFileInPrivateFolder(Drive driveService, List<String> privateFolderIds, String fileId) throws IOException {
+    
+    ParentList fileParentList = driveService.parents().list(fileId).execute();
+    ParentReference parent;
+    String privateFolderId;
+    boolean find=false;
+    
+    int item = 0;
+
+    if (!privateFolderIds.isEmpty()) {
+      privateFolderId = privateFolderIds.get(0);
+      if (privateFolderId.contentEquals(fileId))
+        return true;
+      else {
+        while (item<fileParentList.getItems().size() && !find) {
+          parent = fileParentList.getItems().get(item);
+          
+              for (String privateId: privateFolderIds) {
+                if (privateId.contentEquals(parent.getId()))
+                  find = true;
+              }
+          item++;
+        }
+      }
+    }
+        
+      return find;
+    
+  }*/
+  
+  
+  private FileList getListOwnedDocs(Drive driveService, Files.List listRequest,  String email) throws IOException {
+    
+    FileList list = listRequest.setQ(searchOwners(email)).execute();
+    return list;
+  }
+  
 
   private void changeUserDocsPermissions(String email, List<GwtDoc> emailDocs, String userForDocs)
       throws IOException {
@@ -151,15 +234,26 @@ public class DriveRemoteService extends RemoteServiceServlet implements DriveSer
     Drive driveService = DriveUtils.loadDriveClient(email);
     for (GwtDoc doc: emailDocs) {
       changeDocPermission(driveService, doc, userForDocs);
+     
     }
   }
 
 
   private void changeDocPermission(Drive driveService, GwtDoc doc, String userForDocs) throws IOException {
+
     Permission newOwnerPermission = createPermission(userForDocs);
     try {
       driveService.permissions().insert(doc.id, newOwnerPermission).execute();
-    } catch (IOException e) {
+    } catch (GoogleJsonResponseException e) {
+      GoogleJsonError error = e.getDetails();
+      System.out.println("Ensure the domain is in GoogleApps");
+      System.err.println("Error code: " + error.getCode());
+      System.err.println("Error message: " + error.getMessage());
+    } catch (HttpResponseException e) {
+      System.err.println("HTTP Status code: " + e.getStatusCode());
+      System.err.println("HTTP Reason: " + e.getMessage());    
+    }
+    catch (IOException e) {
       handleException(driveService, doc);
     }
   }
@@ -191,14 +285,16 @@ public class DriveRemoteService extends RemoteServiceServlet implements DriveSer
     return newPermission;
   }
 
-  private String searchOwners(String email) {
+  private static String searchOwners(String email) {
     StringBuffer buffer = new StringBuffer();
     buffer
     .append("'")
     .append(email)
     .append("'")
-    .append(" in owners");
+    .append(" in owners and trashed = false");
+    
     return buffer.toString();
+    
   }
     
 

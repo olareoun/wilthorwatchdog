@@ -33,23 +33,15 @@ import java.util.Collections;
 
 import javax.servlet.http.HttpServletRequest;
 
-/**
- * Utility class for JDO persistence, OAuth flow helpers, and others.
- *
- * @author Yaniv Inbar
- */
 class DriveUtils {
 
-  /**
-   * 
-   */
-  private static final String P12_PATH = "/8463127e5b4fb444c1e47389f1b6ce1b57d0f83b-privatekey.p12";
 
-  /**
-   * 
-   */
+  private static final String P12_PATH =
+      "/785a54f28ec22f64c6bc3f42d3fe1187909e6d36-privatekey.p12";
+      // "/8463127e5b4fb444c1e47389f1b6ce1b57d0f83b-privatekey.p12";
   private static final String CLIENT_SERVICE_EMAIL =
-      "121078344609-ubnbhq4fthfvq2t6fls53lnnt847cl5n@developer.gserviceaccount.com";
+      "921789520543-emf80i502ihkp849grnnnc1jclfhn28t@developer.gserviceaccount.com";
+      //"121078344609-ubnbhq4fthfvq2t6fls53lnnt847cl5n@developer.gserviceaccount.com";
 
   static String getRedirectUri(HttpServletRequest req) {
     GenericUrl url = new GenericUrl(req.getRequestURL().toString());
